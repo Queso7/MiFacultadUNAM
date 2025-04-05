@@ -1,0 +1,26 @@
+# Backend (Node.js/Express)  
+backend/node_modules  
+.env  
+npm-debug.log  
+.DS_Store  
+
+# Frontend (React/Vite)  
+/frontend/node_modules  
+/frontend/dist  
+/frontend/.env  
+/frontend/.vite  
+
+# Database (SQL)  
+*.sqlite  
+*.sql  
+/database/dump/  
+
+# IDE/Sistema  
+.idea/  
+.vscode/  
+*.swp  
+*.swo  
+
+# Docker (si lo usas)  
+docker-compose.yml.dev  
+.env.local  
