@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import authRoutes from './auth.js';
+
 const router = express.Router();
-const { getData } = require('../controllers/dataController');
 
-router.get('/data', getData); // Ejemplo: GET /api/data
+router.use('/auth', authRoutes);
 
-module.exports = router;
+export default router;

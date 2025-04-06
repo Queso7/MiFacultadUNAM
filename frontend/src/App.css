@@ -1,4 +1,4 @@
-/* Estructura principal - EXISTENTE (conserva esto) */
+
 .app-container {
     display: flex;
     flex-direction: column;
@@ -7,22 +7,20 @@
   
   .main-content {
     flex: 1;
-    padding-top: 60px; /* Ajuste para navbar fijo */
-    padding-bottom: 20px; /* Nuevo: espacio antes del footer */
+    padding-top: 60px; 
+    padding-bottom: 20px;
   }
   
-  /* Footer - MEJORADO */
   footer {
     background: #f8f9fa;
     padding: 20px 0;
     text-align: center;
-    margin-top: auto; /* Fuerza al footer a quedarse abajo */
+    margin-top: auto; 
   }
   
-  /* Nuevos estilos para la página Ayuda */
   .ayuda-page {
     padding: 2rem;
-    min-height: calc(100vh - 150px); /* Altura total - (header + footer) */
+    min-height: calc(100vh - 150px);
   }
   
   .recursos-grid {

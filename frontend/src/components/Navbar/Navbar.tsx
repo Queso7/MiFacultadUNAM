@@ -14,7 +14,7 @@ const CustomNavbar = () => {
             <Nav.Link as={Link} to="/" eventKey="/">Inicio</Nav.Link>
             <Nav.Link as={Link} to="/ayuda" eventKey="/ayuda">Ayuda académica</Nav.Link>
             <Nav.Link as={Link} to="/sos" eventKey="/sos">SOS</Nav.Link>
-            <Nav.Link disabled>Iniciar sesión</Nav.Link>
+            <Nav.Link as={Link} to="/login" eventKey={"/login"}>Iniciar sesión</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
