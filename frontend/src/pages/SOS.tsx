@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { Image } from 'react-bootstrap';
 const SOS: React.FC = () => {
   const [emergencyType, setEmergencyType] = useState<string>('');
 
@@ -24,6 +24,12 @@ const SOS: React.FC = () => {
         </select>
         <button type="submit" className="emergency-btn">Pedir Ayuda</button>
       </form>
+
+
+      <div>
+        <h2>Yo esperando que diego implemente</h2>        
+        <img src="https://miro.medium.com/v2/resize:fit:640/format:webp/0*qSD6Z697a5baxF8H.gif" />
+      </div>
     </main>
   );
 };
