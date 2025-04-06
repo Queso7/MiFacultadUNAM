@@ -1,35 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import './App.css';
+import { Carousel } from 'react-bootstrap';
+import img1 from './assets/yo y los papus.jpeg';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div>
+    <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div className="container-fluid">
+        <a className="navbar-brand" href="#">Comunidad Fes Acatlán</a>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto"> {/* Alinea a la derecha */}
+            <li className="nav-item">
+              <a className="nav-link active" href="#">Inicio</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">Ayuda academica</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">SOS</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link disabled" href="#">iniciar sesion</a>
+            </li>
+          </ul>
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </nav>
+
+    <Carousel>
+<Carousel.Item>
+    <img className="d-block w-100" src={img1} alt="Primera" />
+  <Carousel.Caption>
+    <h3>Primera Imagen</h3>
+    <p>Descripción opcional.</p>
+  </Carousel.Caption>
+</Carousel.Item>
+
+<Carousel.Item>
+  <img
+    className="d-block w-100"
+    src="https://via.placeholder.com/800x400?text=Segunda+Imagen"
+    alt="Segunda"
+  />
+  <Carousel.Caption>
+    <h3>Segunda Imagen</h3>
+  </Carousel.Caption>
+</Carousel.Item>
+</Carousel>
+    </div>
+    
+  );
 }
 
-export default App
+export default App;
