@@ -4,8 +4,8 @@ import img1 from '../assets/yo y los papus.jpeg';
 
 const Home: React.FC = () => {
   return (
-    <main className="home-page px-3 px-md-4 px-lg-5 py-4">
-      <h1 className='text-center'>Bienvenido a Comunidad FES Acatlán</h1>
+    <main className="home-pagem m-3%">
+      <h1 className='text-center my-4'>Bienvenido a Comunidad FES Acatlán</h1>
 
       <Container fluid>
         <Row><Col xs={12} md={8}>
@@ -88,7 +88,7 @@ const Home: React.FC = () => {
         </Row>
       </Container>
       <Container fluid>
-        <div className='p-5'>
+        <div className=' px-4 my-5'>
           <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum beatae dolor rem at similique? Dolor, alias quidem impedit numquam, vero deleniti minus voluptate non exercitationem, maxime ut delectus perspiciatis iste.</p>
           <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Rem in sapiente consectetur dolores, sit quae inventore iure ipsam nostrum. Ut a incidunt laborum amet ab accusamus eius cupiditate nihil facere!</p>
         </div>
