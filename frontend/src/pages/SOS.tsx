@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Col, Container, Row, Image } from 'react-bootstrap';
-import { Route } from 'react-router-dom';
 
 const SOS: React.FC = () => {
   const [emergencyType, setEmergencyType] = useState<string>('');
