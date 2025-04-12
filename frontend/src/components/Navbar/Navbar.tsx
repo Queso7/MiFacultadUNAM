@@ -12,9 +12,9 @@ const CustomNavbar = () => {
 
   return (
     <Navbar
-      bg="dark" 
-      variant="dark"  // Texto claro para contraste
-      expand="lg" 
+      bg="dark"
+      variant="dark"
+      expand="lg"
       fixed="top"
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
