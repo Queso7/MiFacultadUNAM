@@ -10,6 +10,10 @@ import LoginForm from './components/auth/LoginForm';
 import PrivateRoute from './components/auth/PrivateRoute';
 import AyudaTutorias from './pages/AyudaTuturias';
 import AyudaAsesorias from './pages/AyudaAsesorias';
+
+import AgregarRegistroMaterial from './pages/AgregarRegistroMaterial';
+
+
 import NotFound from './pages/NotFound';
 import './App.css';
 
@@ -28,6 +32,10 @@ const App: React.FC = () => {
             <Route path='/ayuda/material' element={<AyudaMaterial/>}/>
             <Route path='/ayuda/asesorias' element={<AyudaAsesorias/>}/>
             <Route path='/ayuda/tutorias' element={<AyudaTutorias/>}/>
+
+
+            <Route path="/ayuda/material" element={<AyudaMaterial />} />
+            <Route path="/ayuda/material/agregar-material" element={<AgregarRegistroMaterial />} />
 
             <Route element={<PrivateRoute />}> {/*Rutas privadas*/}
               <Route path="/dashboard" element={<Dashboard />} />
