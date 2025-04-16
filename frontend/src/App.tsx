@@ -8,6 +8,12 @@ import AyudaMaterial from './pages/AyudaMaterial';
 import Dashboard from './pages/DashBoard';
 import LoginForm from './components/auth/LoginForm';
 import PrivateRoute from './components/auth/PrivateRoute';
+
+
+
+import Register from './pages/RegistroU'; // <-- aquí asegúrate del nombre del archivo
+
+
 import AyudaTutorias from './pages/AyudaTuturias';
 import AyudaAsesorias from './pages/AyudaAsesorias';
 
@@ -27,6 +33,10 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/sos" element={<SOS />} />
             <Route path="/login" element={<LoginForm />} />
+
+            <Route path='/registro' element={<Register />} />
+
+
                     {/*Ayuda y subrutas*/}
             <Route path="/ayuda" element={<Ayuda />} />
             <Route path='/ayuda/material' element={<AyudaMaterial/>}/>

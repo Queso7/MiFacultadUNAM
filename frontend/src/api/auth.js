@@ -1,27 +1,13 @@
-import api from './client';
+// front/src/api/auth.js
+export const registerUser = async (email, password) => {
+  const response = await fetch('http://localhost:3000/api/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+  });
 
-export const login = async (credentials) => {
-  try {
-    const { data } = await api.post('/auth/login', credentials);
-    return data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
-
-export const getCurrentUser = async () => {
-  try {
-    const { data } = await api.get('/auth/me');
-    return data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
-
-export const logout = async () => {
-  try {
-    await api.post('/auth/logout');
-  } finally {
-    localStorage.removeItem('accessToken');
-  }
+  const data = await response.json();
+  return data;
 };

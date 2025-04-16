@@ -5,6 +5,9 @@ import apiRouter from './routes/api.js'; // Asegúrate que api.js exista
 import sosRoutes from './routes/sos.js'; // Usa import y pon extensión .js
 import ArchivosMatRoutes from './routes/ArchivosMat.js';//queso porfavor dime que tu psuste eso, si eso es un si, una disculpa
 
+import authRoutes from './routes/auth.js';
+
+
 //ver tablitas materiales
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -35,7 +38,7 @@ app.use('/api/archivosMat', ArchivosMatRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
-
+app.use('/api/auth', authRoutes);
 
 // Inicia el servidor
 app.listen(PORT, () => {
