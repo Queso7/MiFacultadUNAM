@@ -74,7 +74,7 @@ const LoginForm = () => {
       }
       
       // Redirección post-login
-      navigate(from, { replace: true });
+      navigate(from);
       
     } catch (err: unknown) {
       // Manejo seguro de errores

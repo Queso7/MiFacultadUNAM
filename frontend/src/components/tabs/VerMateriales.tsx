@@ -1,67 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Container } from 'react-bootstrap';
+import axios from 'axios';
+import { useAuth } from '../../hooks/useauth'; // asegúrate de crearlo
+import { Link } from 'react-router-dom';
 
 interface Material {
-  id: number;
-  carrera: string;
-  materia: string;
-  profesor: string;
-  tipo: string;
+  _id: string;
+  nombre: string;
   archivo: string;
-  fecha: string;
+  autor: string; // Este debe ser el ID del usuario
 }
 
-const VerMateriales: React.FC = () => {
+const VerMateriales = () => {
   const [materiales, setMateriales] = useState<Material[]>([]);
+  const user = useAuth(); // El usuario logueado (o null)
 
   useEffect(() => {
     const fetchMateriales = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/ArchivosMat');
-        const data = await response.json();
-        setMateriales(data);
-      } catch (error) {
-        console.error('Error al obtener materiales:', error);
+        const response = await axios.get('http://localhost:5000/api/materiales');
+        setMateriales(response.data);
+      } catch (err) {
+        console.error('Error al obtener materiales', err);
       }
     };
 
     fetchMateriales();
   }, []);
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('¿Estás seguro de borrar este archivo?')) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/materiales/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`
+        }
+      });
+      setMateriales(prev => prev.filter(m => m._id !== id));
+    } catch (err) {
+      alert('No se pudo eliminar el archivo');
+      console.error(err);
+    }
+  };
+
   return (
-    <Container className="my-5">
-      <h2 className="mb-4 text-center">📄 Materiales Subidos</h2>
-      <Table striped bordered hover responsive>
-        <thead className="table-dark">
+    <div className="table-responsive">
+      <table className="table table-striped">
+        <thead>
           <tr>
-            <th>#</th>
-            <th>Carrera</th>
-            <th>Materia</th>
-            <th>Profesor</th>
-            <th>Tipo</th>
+            <th>Nombre</th>
             <th>Archivo</th>
-            <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {materiales.map((mat) => (
-            <tr key={mat.id}>
-              <td>{mat.id}</td>
-              <td>{mat.carrera}</td>
-              <td>{mat.materia}</td>
-              <td>{mat.profesor}</td>
-              <td>{mat.tipo}</td>
+          {materiales.map((material) => (
+            <tr key={material._id}>
+              <td>{material.nombre}</td>
               <td>
-                <a href={`http://localhost:5000/${mat.archivo}`} target="_blank" rel="noopener noreferrer">
+                <a href={`http://localhost:5000/uploads/${material.archivo}`} target="_blank" rel="noopener noreferrer">
                   Ver archivo
                 </a>
               </td>
-              <td>{new Date(mat.fecha).toLocaleString()}</td>
+              <td>
+                {user && user.id === material.autor && (
+                  <>
+                    <Link to={`/ayuda/material/editar/${material._id}`} className="btn btn-warning btn-sm me-2">
+                      Modificar
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(material._id)}
+                      className="btn btn-danger btn-sm"
+                    >
+                      Borrar
+                    </button>
+                  </>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
-      </Table>
-    </Container>
+      </table>
+    </div>
   );
 };
 

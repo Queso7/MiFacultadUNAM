@@ -1,29 +1,39 @@
+// src/api/apiClient.js
 import axios from 'axios';
-import { getToken, removeToken } from './auth';
 
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+// 1. Crear instancia de Axios
+const apiClient = axios.create({
+  baseURL: 'http://localhost:5000/api', // URL base de tu backend
+  timeout: 10000, // Tiempo máximo de espera
+  headers: {
+    'Content-Type': 'application/json', // Header por defecto
+  },
 });
 
-// Interceptor para añadir token a cada request
-api.interceptors.request.use((config) => {
-  const token = getToken(); // Obtener token de localStorage o cookies
+// 2. Interceptor para añadir token a las peticiones
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
-// Interceptor para manejar errores 401 (No autorizado)
-api.interceptors.response.use(
+// 3. Interceptor para manejar errores globales
+apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      removeToken(); // Eliminar token inválido
+      // Token inválido o expirado
+      localStorage.removeItem('token');
       window.location.href = '/login'; // Redirigir a login
     }
     return Promise.reject(error);
   }
 );
 
-export default api;
+export default apiClient;

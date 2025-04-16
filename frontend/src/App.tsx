@@ -9,16 +9,10 @@ import Dashboard from './pages/DashBoard';
 import LoginForm from './components/auth/LoginForm';
 import PrivateRoute from './components/auth/PrivateRoute';
 
-
-
 import Register from './pages/RegistroU'; // <-- aquí asegúrate del nombre del archivo
-
-
 import AyudaTutorias from './pages/AyudaTuturias';
 import AyudaAsesorias from './pages/AyudaAsesorias';
-
 import AgregarRegistroMaterial from './pages/AgregarRegistroMaterial';
-
 
 import NotFound from './pages/NotFound';
 import './App.css';
@@ -29,27 +23,30 @@ const App: React.FC = () => {
       <div className="app-container">
         <Navbar />
         <main className="main-content">
-          <Routes>  {/* Rutas públicas */}
+          <Routes>
+            {/* Rutas públicas */}
             <Route path="/" element={<Home />} />
             <Route path="/sos" element={<SOS />} />
             <Route path="/login" element={<LoginForm />} />
+            <Route path="/registro" element={<Register />} />
 
-            <Route path='/registro' element={<Register />} />
-
-
-                    {/*Ayuda y subrutas*/}
+            {/* Ayuda y subrutas */}
             <Route path="/ayuda" element={<Ayuda />} />
-            <Route path='/ayuda/material' element={<AyudaMaterial/>}/>
-            <Route path='/ayuda/asesorias' element={<AyudaAsesorias/>}/>
-            <Route path='/ayuda/tutorias' element={<AyudaTutorias/>}/>
-
-
             <Route path="/ayuda/material" element={<AyudaMaterial />} />
-            <Route path="/ayuda/material/agregar-material" element={<AgregarRegistroMaterial />} />
+            <Route path="/ayuda/asesorias" element={<AyudaAsesorias />} />
+            <Route path="/ayuda/tutorias" element={<AyudaTutorias />} />
+            
 
-            <Route element={<PrivateRoute />}> {/*Rutas privadas*/}
+            <Route element={<PrivateRoute />}> {/* Rutas privadas */}
               <Route path="/dashboard" element={<Dashboard />} />
+             
             </Route>
+
+            <Route element={<PrivateRoute />}>
+             <Route path="/ayuda/material/agregar-material" element={<AgregarRegistroMaterial />} />
+              </Route>
+
+            {/* Ruta 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

@@ -11,25 +11,40 @@ const AgregarRegistroMaterial: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!archivo) {
       alert("Por favor selecciona un archivo para subir.");
       return;
     }
+  
+    const token = localStorage.getItem("authToken");
 
+    if (!token) {
+      alert("No estás autenticado. Por favor inicia sesión.");
+      return;
+    }
+  
     const formData = new FormData();
     formData.append("Area", Area);
     formData.append("Materia", Materia);
     formData.append("Profesor", Profesor);
     formData.append("tipoArchivo", tipoArchivo);
-    formData.append("Archivo", archivo);  // Archivo adjunto
-
+    formData.append("archivo", archivo);
+  
     try {
-     const response = await fetch("http://localhost:5000/api/archivosMat", {
+      const response = await fetch("http://localhost:5000/api/archivosMat", {
         method: "POST",
-        body: formData, // No se necesita Content-Type, se asigna automáticamente con boundary
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
       });
-
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al subir el archivo');
+      }
+  
       const result = await response.json();
       alert(result.message);
     } catch (error) {
@@ -37,6 +52,7 @@ const AgregarRegistroMaterial: React.FC = () => {
       console.error(error);
     }
   };
+  
 
   return (
     <main className="Agregar-registros">
