@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom'; // 👈 IMPORTANTE
+import VerMateriales from '../components/tabs/VerMateriales';
 
 const Dashboard = () => {
     return (
@@ -25,6 +26,8 @@ const Dashboard = () => {
       </div>
 
       {/* Tabla de materiales subidos */}
+
+      <VerMateriales />
     </main>
     );
   };

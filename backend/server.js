@@ -7,6 +7,11 @@ import ArchivosMatRoutes from './routes/ArchivosMat.js';//queso porfavor dime qu
 
 import authRoutes from './routes/auth.js';
 
+import { authenticateToken } from './middleware/auth.js';
+
+import materialesRouter from './routes/ArchivosMat.js';
+
+
 
 //ver tablitas materiales
 import path from 'path';
@@ -24,6 +29,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Ya está importado arriba, úsalo directo
+
+
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -32,13 +41,17 @@ app.use(express.urlencoded({ extended: true })); // Para parsear FormData
 // Rutas
 app.use('/api', apiRouter);
 app.use('/api/sos', sosRoutes);
-app.use('/api/archivosMat', ArchivosMatRoutes);
+//app.use('/api/archivosMat', ArchivosMatRoutes);
+app.use('/api/materiales', ArchivosMatRoutes);
+
 
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/api/auth', authRoutes);
+
+
 
 // Inicia el servidor
 app.listen(PORT, () => {

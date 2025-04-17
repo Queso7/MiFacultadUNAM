@@ -9,6 +9,8 @@ import fs from 'fs';
 import { authenticateToken } from '../middleware/auth.js';
 
 
+
+
 const dir = './uploads';
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir);
@@ -40,16 +42,16 @@ const initDb = async () => {
 
   // Asegúrate de que la columna 'Area' exista en la tabla Materiales
   await db.exec(`
-    CREATE TABLE IF NOT EXISTS Materiales (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nombre TEXT,
-      Area TEXT,  -- Asegúrate de que esta columna esté presente
-      Materia TEXT,
-      Profesor TEXT,
-      Tipo TEXT,
-      Archivo TEXT,
-      Fecha TEXT,
-      autor TEXT
+  CREATE TABLE IF NOT EXISTS Materiales (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre TEXT,
+  area TEXT,
+  materia TEXT,
+  profesor TEXT,
+  tipo TEXT,
+  archivo TEXT,
+  fecha TEXT,
+  autor TEXT
     );
   `);
 
@@ -72,9 +74,10 @@ initDb(); // Inicializar la base de datos
 // ✅ POST para subir archivo
 router.post('/', authenticateToken, upload.single('archivo'), async (req, res) => {
   const { nombre, Area, Materia, Profesor, tipoArchivo } = req.body;
-  const archivoPath = req.file ? req.file.filename : null; // Solo guardamos el nombre del archivo
+  const archivoPath = req.file ? req.file.filename : null;
   const fecha = new Date().toISOString();
-  const autor = req.user.email;
+  const autor = req.user.email?.slice(0, 9); // ✨ Aquí extraemos los primeros 9 caracteres del email
+  
 
   try {
     await db.run(
@@ -89,6 +92,7 @@ router.post('/', authenticateToken, upload.single('archivo'), async (req, res) =
     res.status(500).json({ message: 'Error al subir archivo' });
   }
 });
+
 
 // ✅ GET para obtener todos los archivos (o solo los del usuario)
 router.get('/', authenticateToken, async (req, res) => {
