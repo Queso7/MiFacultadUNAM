@@ -2,6 +2,8 @@ node_modules/
 # Backend (Node.js/Express)  
 /backend/node_modules
 /backend/sosdata.db
+/backend/uploads/
+/backend/Matdata.db
 .env  
 npm-debug.log  
 .DS_Store  
