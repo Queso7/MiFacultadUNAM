@@ -83,7 +83,7 @@ router.post('/', authenticateToken, upload.single('archivo'), async (req, res) =
     await db.run(
       `INSERT INTO Materiales (nombre, Area, Materia, Profesor, Tipo, Archivo, Fecha, autor)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [nombre, Area, Materia, Profesor, tipoArchivo, archivoPath, fecha, autor]
+      [Area, Materia, Profesor, tipoArchivo, archivoPath, fecha, autor]
     );
 
     res.json({ message: 'Archivo subido correctamente' });

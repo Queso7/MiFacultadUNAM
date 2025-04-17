@@ -16,6 +16,7 @@ export const authenticateToken = (req, res, next) => {
     if (err) {
       console.log('Error en la validación del token:', err);
       return res.status(403).json({ message: 'Token inválido' });
+      req.user = decoded;
     }
   
     req.user = user; // ✅ Ahora sí se asigna cuando el token es válido

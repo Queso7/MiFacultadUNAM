@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 interface Material {
   id: number;
-  nombre: string;
+  autor: string;
   archivo: string;
   usuario: string;
   area?: string;
@@ -73,7 +73,7 @@ const VerMateriales: React.FC = () => {
       <table className="table table-bordered table-striped">
         <thead className="thead-dark">
           <tr>
-            <th>Nombre</th>
+            <th>Autor</th>
             <th>Área</th>
             <th>Materia</th>
             <th>Profesor</th>
@@ -86,7 +86,7 @@ const VerMateriales: React.FC = () => {
         <tbody>
           {materiales.map((material) => (
             <tr key={material.id}>
-              <td>{material.nombre}</td>
+              <td>{material.autor}</td>
               <td>{material.area || '-'}</td>
               <td>{material.materia || '-'}</td>
               <td>{material.profesor || '-'}</td>
@@ -102,7 +102,7 @@ const VerMateriales: React.FC = () => {
               </td>
               <td>{material.fecha ? new Date(material.fecha).toLocaleDateString() : '-'}</td>
               <td>
-                {user && user.email === material.usuario && (
+                {user && user.email === material.autor && (
                   <>
                     <Link
                       to={`/ayuda/material/editar/${material.id}`}

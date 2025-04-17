@@ -32,7 +32,7 @@ const AgregarRegistroMaterial: React.FC = () => {
     formData.append("archivo", archivo);
   
     try {
-      const response = await fetch("http://localhost:5000/api/archivosMat", {
+      const response = await fetch("http://localhost:5000/api/materiales", {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -65,13 +65,8 @@ const AgregarRegistroMaterial: React.FC = () => {
 
               <div className="mb-3">
                 <label className="form-label fw-bold">Area</label>
-                    <select
-                        value={Area}
-                        onChange={(e) => setArea(e.target.value)}
-                        className="form-control carrera-scroll"
-                        required
-                        >
-                        <option value="Area">Area</option>
+                    <select value={Area} onChange={(e) => setArea(e.target.value)} className="form-control" required> 
+                        <option value="" disabled>Seleccione el area de conocimientos</option>
                         <option value="Matematicas">Matematica</option>
                         <option value="Ingenieria">Ingenieria</option>
                         <option value="Ciencias Computacionales">Ciencias Computacionales</option>

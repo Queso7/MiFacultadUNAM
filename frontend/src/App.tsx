@@ -17,6 +17,8 @@ import AgregarRegistroMaterial from './pages/AgregarRegistroMaterial';
 import NotFound from './pages/NotFound';
 import './App.css';
 
+import Panel from './pages/Panel';
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -44,6 +46,10 @@ const App: React.FC = () => {
 
             <Route element={<PrivateRoute />}>
              <Route path="/ayuda/material/agregar-material" element={<AgregarRegistroMaterial />} />
+              </Route>
+
+              <Route element={<PrivateRoute />}>
+             <Route path="/Panel" element={<Panel />} />
               </Route>
 
             {/* Ruta 404 */}
