@@ -34,8 +34,8 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Obtener ruta de redirección o usar dashboard por defecto
-  const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
+
+  const from = (location.state as LocationState)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

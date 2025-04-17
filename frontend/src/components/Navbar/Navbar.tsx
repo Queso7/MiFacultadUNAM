@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Navbar, Nav, Container } from 'react-bootstrap';
+import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
+import { useAuth } from '../../hooks/useauth';
 
 const CustomNavbar = () => {
   const location = useLocation();
   const [expanded, setExpanded] = useState(false);
-  //Para que se vea chido
+  const { isAuthenticated, getUser, logout } = useAuth();
+  const user = getUser();
+
   useEffect(() => {
     setExpanded(false);
   }, [location.pathname]);
@@ -26,9 +29,28 @@ const CustomNavbar = () => {
         <Navbar.Collapse id="navbarNav" className="justify-content-end">
           <Nav activeKey={location.pathname}>
             <Nav.Link as={Link} to="/" eventKey="/">Inicio</Nav.Link>
-            <Nav.Link as={Link} to="/ayuda" eventKey="/ayuda">Ayuda académica</Nav.Link>
             <Nav.Link as={Link} to="/sos" eventKey="/sos">SOS</Nav.Link>
-            <Nav.Link as={Link} to="/login" eventKey="/login">Iniciar sesión</Nav.Link>
+
+            {isAuthenticated() && user ? (
+              <Dropdown align="end" as={Nav.Item}>
+                <Nav.Link as={Link} to="/ayuda" eventKey="/ayuda">Ayuda Academica</Nav.Link>
+                <Dropdown.Toggle as={Nav.Link} className="d-flex align-items-center">
+                  <span className="me-2"> {user.name}</span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="dropdown-menu-dark">
+                  <Dropdown.Item as={Link} to="/perfil">Mi perfil</Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={logout}>
+                    <div className="d-flex align-items-center text-danger">
+                      <i className="bi bi-box-arrow-right me-2"></i>
+                      Cerrar sesión
+                    </div>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) : 
+            <Nav.Link as={Link} to="/login" eventKey="/login">Iniciar Sesion</Nav.Link>
+            }
           </Nav>
         </Navbar.Collapse>
       </Container>
