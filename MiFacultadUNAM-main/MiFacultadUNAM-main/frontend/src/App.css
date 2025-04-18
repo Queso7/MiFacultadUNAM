@@ -1,0 +1,54 @@
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding-top: 60px; 
+    padding-bottom: 20px;
+  }
+  
+  footer {
+    background: black;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: auto; 
+  }
+  
+  .ayuda-page {
+    padding: 2rem;
+    min-height: calc(100vh - 150px);
+  }
+  
+  .recursos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .recurso-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s;
+  }
+  
+  .recurso-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+
+
+  
