@@ -15,7 +15,7 @@ interface Material {
   fecha?: string;
 }
 
-const VerMateriales: React.FC = () => {
+const TabUsuario: React.FC = () => {
   const [materiales, setMateriales] = useState<Material[]>([]);
   const [error, setError] = useState<string | null>(null);
   const user = useAuth();
@@ -24,11 +24,12 @@ const VerMateriales: React.FC = () => {
     const fetchMateriales = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://localhost:5000/api/materiales', {
+        const response = await axios.get('http://localhost:5000/api/materiales?misArchivos=true', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Materiales recibidos:', response.data);
         setMateriales(response.data);
       } catch (err) {
         if (axios.isAxiosError(err)) {
@@ -80,52 +81,59 @@ const VerMateriales: React.FC = () => {
             <th>Tipo</th>
             <th>Archivo</th>
             <th>Fecha</th>
-           
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {materiales.map((material) => (
-            <tr key={material.id}>
-              <td>{material.autor}</td>
-              <td>{material.area || '-'}</td>
-              <td>{material.materia || '-'}</td>
-              <td>{material.profesor || '-'}</td>
-              <td>{material.tipo || '-'}</td>
-              <td>
-                <a
-                  href={`http://localhost:5000/uploads/${material.archivo}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ver archivo
-                </a>
-              </td>
-              <td>{material.fecha ? new Date(material.fecha).toLocaleDateString() : '-'}</td>
-              <td>
-              {user.getUser() && user.getUser()?.email === material.autor && (
+          {materiales.map((material) => {
+            const currentUser = user.getUser();
+            console.log('usuario completo:', currentUser);
+            console.log('user email:', currentUser?.email);
+            console.log('material autor:', material.autor);
 
-                  <>
-                    <Link
-                      to={`/ayuda/material/editar/${material.id}`}
-                      className="btn btn-warning btn-sm me-2"
-                    >
-                      Modificar
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(material.id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Borrar
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
+            return (
+              <tr key={material.id}>
+                <td>{material.autor}</td>
+                <td>{material.area || '-'}</td>
+                <td>{material.materia || '-'}</td>
+                <td>{material.profesor || '-'}</td>
+                <td>{material.tipo || '-'}</td>
+                <td>
+                  <a
+                    href={`http://localhost:5000/uploads/${material.archivo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Ver archivo
+                  </a>
+                </td>
+                <td>{material.fecha ? new Date(material.fecha).toLocaleDateString() : '-'}</td>
+                <td>
+                {currentUser && currentUser.email.split('@')[0] === material.autor && (
+
+                    <>
+                      <Link
+                        to={`/ayuda/material/editar/${material.id}`}
+                        className="btn btn-warning btn-sm me-2"
+                      >
+                        Modificar
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(material.id)}
+                        className="btn btn-danger btn-sm"
+                      >
+                        Borrar
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
 };
 
-export default VerMateriales;
+export default TabUsuario;

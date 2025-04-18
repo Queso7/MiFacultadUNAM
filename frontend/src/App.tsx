@@ -12,6 +12,7 @@ import Register from './pages/RegistroU';
 import AyudaTutorias from './pages/AyudaTutorias';
 import AyudaAsesorias from './pages/AyudaAsesorias';
 import AgregarRegistroMaterial from './pages/AgregarRegistroMaterial';
+import EditarMaterial from './pages/EditarMaterial'
 import NotFound from './pages/NotFound';
 import './App.css';
 
@@ -36,6 +37,8 @@ const App: React.FC = () => {
               <Route path="/ayuda/tutorias" element={<AyudaTutorias />} />
               <Route path="/ayuda/material/agregar-material" element={<AgregarRegistroMaterial />} />
               <Route path='/perfil' element={<Perfil/>}/>
+              <Route path="/ayuda/material/editar/:id" element={<EditarMaterial />} />
+
             </Route>
 
             {/* Ruta 404 */}

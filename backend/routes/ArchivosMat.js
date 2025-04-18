@@ -10,6 +10,10 @@ import { authenticateToken } from '../middleware/auth.js';
 
 
 
+const __dirname = path.resolve(); // Solo si usas ES modules
+const usersDbPath = path.resolve(__dirname, './database/users.db');
+
+
 
 const dir = './uploads';
 if (!fs.existsSync(dir)) {
@@ -39,6 +43,9 @@ const initDb = async () => {
     filename: './Matdata.db',
     driver: sqlite3.Database,
   });
+
+  await db.exec(`ATTACH DATABASE '${usersDbPath}' AS usersDb`);
+
 
   // Asegúrate de que la columna 'Area' exista en la tabla Materiales
   await db.exec(`
@@ -74,15 +81,18 @@ initDb(); // Inicializar la base de datos
 // ✅ POST para subir archivo
 router.post('/', authenticateToken, upload.single('archivo'), async (req, res) => {
   const { nombre, Area, Materia, Profesor, tipoArchivo } = req.body;
+
   const archivoPath = req.file ? req.file.filename : null;
   const fecha = new Date().toISOString();
   const autor = req.user.email?.slice(0, 9); // ✨ Aquí extraemos los primeros 9 caracteres del email
   
 
+
   try {
+    const nombre = '${Materia} - ${autor}';
     await db.run(
-      `INSERT INTO Materiales (nombre, Area, Materia, Profesor, Tipo, Archivo, Fecha, autor)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO Materiales (Area, Materia, Profesor, Tipo, Archivo, Fecha, autor)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [Area, Materia, Profesor, tipoArchivo, archivoPath, fecha, autor]
     );
 
@@ -95,15 +105,26 @@ router.post('/', authenticateToken, upload.single('archivo'), async (req, res) =
 
 
 // ✅ GET para obtener todos los archivos (o solo los del usuario)
+// ✅ GET para obtener archivos con datos del usuario
 router.get('/', authenticateToken, async (req, res) => {
   const { misArchivos } = req.query;
 
   try {
     let materiales;
     if (misArchivos === 'true') {
-      materiales = await db.all("SELECT * FROM Materiales WHERE autor = ?", [req.user.email]);
+      materiales = await db.all(
+        `SELECT m.*, u.email
+         FROM Materiales m
+         JOIN usersDb.users u ON u.username = m.autor
+         WHERE u.email = ?`,
+        [req.user.email]
+      );
     } else {
-      materiales = await db.all("SELECT * FROM Materiales");
+      materiales = await db.all(
+        `SELECT m.*, u.email
+         FROM Materiales m
+         JOIN usersDb.users u ON u.username = m.autor`
+      );
     }
 
     res.json(materiales);
@@ -112,6 +133,7 @@ router.get('/', authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error al obtener archivos" });
   }
 });
+
 
 // ✅ DELETE para eliminar un archivo
 router.delete('/:id', authenticateToken, async (req, res) => {
@@ -136,5 +158,55 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error al eliminar archivo" });
   }
 });
+
+
+// ✅ Obtener un archivo por id
+router.get('/:id', authenticateToken, async (req, res) => {
+  const id = req.params.id;
+  const usuario = req.user.email.split('@')[0];
+
+  try {
+    const material = await db.get("SELECT * FROM Materiales WHERE id = ?", [id]);
+
+    if (!material || material.autor !== usuario) {
+      return res.status(403).json({ message: "No autorizado para ver este archivo" });
+    }
+
+    res.json(material);
+  } catch (err) {
+    console.error('Error al obtener material:', err);
+    res.status(500).json({ message: "Error al obtener material" });
+  }
+});
+
+
+// ✅ PUT para modificar un archivo
+router.put('/:id', authenticateToken, async (req, res) => {
+  const id = req.params.id;
+  const usuario = req.user.email.split('@')[0]; // sólo el número
+
+  const { area, materia, profesor, tipo } = req.body;
+
+  try {
+    const material = await db.get("SELECT * FROM Materiales WHERE id = ?", [id]);
+
+    if (!material || material.autor !== usuario) {
+      return res.status(403).json({ message: "No autorizado para modificar este archivo" });
+    }
+
+    await db.run(
+      `UPDATE Materiales
+       SET area = ?, materia = ?, profesor = ?, tipo = ?
+       WHERE id = ?`,
+      [area, materia, profesor, tipo, id]
+    );
+
+    res.json({ message: "Archivo actualizado correctamente" });
+  } catch (error) {
+    console.error('Error al actualizar archivo:', error);
+    res.status(500).json({ message: "Error al actualizar archivo" });
+  }
+});
+
 
 export default router;
