@@ -54,6 +54,16 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 
 
+app.get('/api/materiales/:id', (req, res) => {
+  const { id } = req.params;
+  const material = materiales.find(m => m.id == id);
+  if (material) {
+    res.json(material);
+  } else {
+    res.status(404).json({ message: 'Material no encontrado' });
+  }
+});
+
 
 // Inicia el servidor
 app.listen(PORT, () => {

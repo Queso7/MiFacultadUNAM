@@ -26,16 +26,19 @@ const CustomNavbar = () => {
       <Container fluid>
         <Navbar.Brand as={Link} to="/">Mi Facultad UNAM</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarNav" />
-        <Navbar.Collapse id="navbarNav" className="justify-content-end">
-          <Nav activeKey={location.pathname}>
+        <Navbar.Collapse id="navbarNav">
+          <Nav className="me-auto" activeKey={location.pathname}>
             <Nav.Link as={Link} to="/" eventKey="/">Inicio</Nav.Link>
+            {isAuthenticated() && (
+              <Nav.Link as={Link} to="/ayuda" eventKey="/ayuda">Ayuda académica</Nav.Link>
+            )}
             <Nav.Link as={Link} to="/sos" eventKey="/sos">SOS</Nav.Link>
-
+          </Nav>
+          <Nav className="ms-auto">
             {isAuthenticated() && user ? (
               <Dropdown align="end" as={Nav.Item}>
-                <Nav.Link as={Link} to="/ayuda" eventKey="/ayuda">Ayuda Academica</Nav.Link>
                 <Dropdown.Toggle as={Nav.Link} className="d-flex align-items-center">
-                  <span className="me-2"> {user.name}</span>
+                  <span className="me-2">{user.name}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu-dark">
                   <Dropdown.Item as={Link} to="/perfil">Mi perfil</Dropdown.Item>
@@ -48,9 +51,11 @@ const CustomNavbar = () => {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-            ) : 
-            <Nav.Link as={Link} to="/login" eventKey="/login">Iniciar Sesion</Nav.Link>
-            }
+            ) : (
+              <Nav.Link as={Link} to="/login" eventKey="/login">
+                {user?.email?.match(/\d+/)?.[0] || "Iniciar sesión"}
+              </Nav.Link>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

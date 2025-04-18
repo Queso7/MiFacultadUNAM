@@ -33,8 +33,6 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-
   const from = (location.state as LocationState)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {

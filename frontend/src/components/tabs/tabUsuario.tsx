@@ -13,6 +13,7 @@ interface Material {
   profesor?: string;
   tipo?: string;
   fecha?: string;
+  tema?: string;
 }
 
 const TabUsuario: React.FC = () => {
@@ -78,59 +79,63 @@ const TabUsuario: React.FC = () => {
             <th>Área</th>
             <th>Materia</th>
             <th>Profesor</th>
+
+            <th>Tema</th>
+
             <th>Tipo</th>
             <th>Archivo</th>
             <th>Fecha</th>
+            
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {materiales.map((material) => {
-            const currentUser = user.getUser();
-            console.log('usuario completo:', currentUser);
-            console.log('user email:', currentUser?.email);
-            console.log('material autor:', material.autor);
+  {materiales.map((material) => {
+    const currentUser = user.getUser();
+    console.log(`Tema del material ${material.id}:`, material.tema);
 
-            return (
-              <tr key={material.id}>
-                <td>{material.autor}</td>
-                <td>{material.area || '-'}</td>
-                <td>{material.materia || '-'}</td>
-                <td>{material.profesor || '-'}</td>
-                <td>{material.tipo || '-'}</td>
-                <td>
-                  <a
-                    href={`http://localhost:5000/uploads/${material.archivo}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Ver archivo
-                  </a>
-                </td>
-                <td>{material.fecha ? new Date(material.fecha).toLocaleDateString() : '-'}</td>
-                <td>
-                {currentUser && currentUser.email.split('@')[0] === material.autor && (
+    return (
+      <tr key={material.id}>
+        <td>{material.autor}</td>
+        <td>{material.area || '-'}</td>
+        <td>{material.materia || '-'}</td>
+        <td>{material.profesor || '-'}</td>
+        <td>{material.tema || '-'}</td>
+        <td>{material.tipo || '-'}</td>
+        
+        <td>
+          <a
+            href={`http://localhost:5000/uploads/${material.archivo}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ver archivo
+          </a>
+        </td>
+        <td>{material.fecha ? new Date(material.fecha).toLocaleDateString() : '-'}</td>
+        <td>
+          {currentUser && currentUser.email.split('@')[0] === material.autor && (
+            <>
+              <Link
+                to={`/ayuda/material/editar/${material.id}`}
+                className="btn btn-warning btn-sm me-2"
+              >
+                Modificar
+              </Link>
+              <button
+                onClick={() => handleDelete(material.id)}
+                className="btn btn-danger btn-sm"
+              >
+                Borrar
+              </button>
+            </>
+          )}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
 
-                    <>
-                      <Link
-                        to={`/ayuda/material/editar/${material.id}`}
-                        className="btn btn-warning btn-sm me-2"
-                      >
-                        Modificar
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(material.id)}
-                        className="btn btn-danger btn-sm"
-                      >
-                        Borrar
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
       </table>
     </div>
   );

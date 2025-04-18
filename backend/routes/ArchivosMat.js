@@ -1,19 +1,13 @@
 import express from 'express';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-
 import { authenticateToken } from '../middleware/auth.js';
 
-
-
 const __dirname = path.resolve(); // Solo si usas ES modules
-const usersDbPath = path.resolve(__dirname, './database/users.db');
-
-
+const dbPath = path.resolve(__dirname, './database/app.db'); // Usamos una sola base de datos
 
 const dir = './uploads';
 if (!fs.existsSync(dir)) {
@@ -35,67 +29,52 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-let db;
-
 // Inicializa la base de datos
+let db;
 const initDb = async () => {
   db = await open({
-    filename: './Matdata.db',
+    filename: dbPath,
     driver: sqlite3.Database,
   });
 
-  await db.exec(`ATTACH DATABASE '${usersDbPath}' AS usersDb`);
-
-
-  // Asegúrate de que la columna 'Area' exista en la tabla Materiales
+  // Asegúrate de que la tabla Materiales existe
   await db.exec(`
-  CREATE TABLE IF NOT EXISTS Materiales (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre TEXT,
-  area TEXT,
-  materia TEXT,
-  profesor TEXT,
-  tipo TEXT,
-  archivo TEXT,
-  fecha TEXT,
-  autor TEXT
+    CREATE TABLE IF NOT EXISTS Materiales (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT,
+      area TEXT,
+      materia TEXT,
+      profesor TEXT,
+      tipo TEXT,
+      archivo TEXT,
+      fecha TEXT,
+      autor TEXT,
+      tema TEXT
     );
   `);
 
-  // Si la columna 'Area' no existe, la agregamos
-  try {
-    await db.exec('ALTER TABLE Materiales ADD COLUMN Area TEXT');
-  } catch (error) {
-    // Ignorar error si la columna ya existe (porque ALTER TABLE falla si la columna ya está allí)
-    if (!error.message.includes('duplicate column name: Area')) {
-      console.error('Error al agregar la columna Area:', error);
-    }
-  }
-
-  console.log('📦 Base de datos SQLite lista en archivosMat.js');
+  console.log('📦 Base de datos SQLite lista');
 };
 
 initDb(); // Inicializar la base de datos
 
-
 // ✅ POST para subir archivo
 router.post('/', authenticateToken, upload.single('archivo'), async (req, res) => {
-  const { nombre, Area, Materia, Profesor, tipoArchivo } = req.body;
+  const { Area, Materia, Profesor, tipoArchivo, tema } = req.body;
 
   const archivoPath = req.file ? req.file.filename : null;
   const fecha = new Date().toISOString();
-  const autor = req.user.email?.slice(0, 9); // ✨ Aquí extraemos los primeros 9 caracteres del email
-  
-
+  const autor = req.user.email.split('@')[0];
 
   try {
-    const nombre = '${Materia} - ${autor}';
+    const nombreGenerado = `${Materia} - ${autor}`;
+    
     await db.run(
-      `INSERT INTO Materiales (Area, Materia, Profesor, Tipo, Archivo, Fecha, autor)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [Area, Materia, Profesor, tipoArchivo, archivoPath, fecha, autor]
+      `INSERT INTO Materiales (Area, Materia, Profesor, tipo, archivo, fecha, autor, tema)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [Area, Materia, Profesor, tipoArchivo, archivoPath, fecha, autor, tema]
     );
-
+    
     res.json({ message: 'Archivo subido correctamente' });
   } catch (error) {
     console.error('Error al insertar en la base de datos:', error);
@@ -103,28 +82,27 @@ router.post('/', authenticateToken, upload.single('archivo'), async (req, res) =
   }
 });
 
-
 // ✅ GET para obtener todos los archivos (o solo los del usuario)
-// ✅ GET para obtener archivos con datos del usuario
 router.get('/', authenticateToken, async (req, res) => {
   const { misArchivos } = req.query;
 
   try {
     let materiales;
     if (misArchivos === 'true') {
-      materiales = await db.all(
-        `SELECT m.*, u.email
-         FROM Materiales m
-         JOIN usersDb.users u ON u.username = m.autor
-         WHERE u.email = ?`,
-        [req.user.email]
-      );
+      const username = req.user.email.split('@')[0];
+    
+      materiales = await db.all(`
+        SELECT m.id, u.username AS Usuario, u.email, m.area, m.materia, m.profesor, m.tipo, m.archivo, m.fecha, m.autor, m.tema
+        FROM Materiales m
+        LEFT JOIN users u ON m.autor = u.username
+        WHERE m.autor = ?
+      `, [username]);
     } else {
-      materiales = await db.all(
-        `SELECT m.*, u.email
-         FROM Materiales m
-         JOIN usersDb.users u ON u.username = m.autor`
-      );
+      materiales = await db.all(`
+        SELECT m.*, u.email
+        FROM Materiales m
+        JOIN users u ON m.autor = u.username
+      `);
     }
 
     res.json(materiales);
@@ -133,7 +111,6 @@ router.get('/', authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error al obtener archivos" });
   }
 });
-
 
 // ✅ DELETE para eliminar un archivo
 router.delete('/:id', authenticateToken, async (req, res) => {
@@ -147,8 +124,8 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     // Opcional: eliminar el archivo del sistema si existe
-    if (material.Archivo && fs.existsSync(`./uploads/${material.Archivo}`)) {
-      fs.unlinkSync(`./uploads/${material.Archivo}`);
+    if (material.archivo && fs.existsSync(`./uploads/${material.archivo}`)) {
+      fs.unlinkSync(`./uploads/${material.archivo}`);
     }
 
     await db.run("DELETE FROM Materiales WHERE id = ?", [id]);
@@ -159,23 +136,24 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-
 // ✅ Obtener un archivo por id
 router.get('/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
-  const usuario = req.user.email.split('@')[0];
+  console.log("Email del usuario:", req.user.email);  // Verifica si se está obteniendo correctamente
 
   try {
-    const material = await db.get("SELECT * FROM Materiales WHERE id = ?", [id]);
+    const materiales = await db.all(
+      `SELECT m.*, u.email
+       FROM Materiales m
+       JOIN users u ON u.username = m.autor
+       WHERE m.id = ? AND u.email = ?`,
+      [id, req.user.email]
+    );
 
-    if (!material || material.autor !== usuario) {
-      return res.status(403).json({ message: "No autorizado para ver este archivo" });
-    }
-
-    res.json(material);
-  } catch (err) {
-    console.error('Error al obtener material:', err);
-    res.status(500).json({ message: "Error al obtener material" });
+    res.json(materiales);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener el material' });
   }
 });
 
@@ -183,30 +161,28 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // ✅ PUT para modificar un archivo
 router.put('/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
-  const usuario = req.user.email.split('@')[0]; // sólo el número
+  const usuario = req.user.email.split('@')[0];
 
   const { area, materia, profesor, tipo } = req.body;
 
   try {
     const material = await db.get("SELECT * FROM Materiales WHERE id = ?", [id]);
-
-    if (!material || material.autor !== usuario) {
-      return res.status(403).json({ message: "No autorizado para modificar este archivo" });
+    if (!material) {
+      return res.status(404).json({ message: "Material no encontrado" });
     }
 
     await db.run(
       `UPDATE Materiales
-       SET area = ?, materia = ?, profesor = ?, tipo = ?
+       SET Area = ?, Materia = ?, Profesor = ?, Tipo = ?
        WHERE id = ?`,
       [area, materia, profesor, tipo, id]
     );
 
     res.json({ message: "Archivo actualizado correctamente" });
   } catch (error) {
-    console.error('Error al actualizar archivo:', error);
-    res.status(500).json({ message: "Error al actualizar archivo" });
+    console.error('Error al actualizar material:', error);
+    res.status(500).json({ message: "Error al actualizar el material" });
   }
 });
-
 
 export default router;

@@ -7,6 +7,7 @@ const AgregarRegistroMaterial: React.FC = () => {
   const [Materia, setMateria] = useState('');
   const [Profesor, setProfesor] = useState('');
   const [tipoArchivo, setTipoArchivo] = useState('');
+  const [tema,setTema]= useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +31,16 @@ const AgregarRegistroMaterial: React.FC = () => {
     formData.append("Profesor", Profesor);
     formData.append("tipoArchivo", tipoArchivo);
     formData.append("archivo", archivo);
+    formData.append("tema",tema);
+
+    console.log("Datos a enviar:", {
+      Area,
+      Materia,
+      Profesor,
+      tipoArchivo,
+      archivo: archivo.name,
+      tema,
+    });
   
     try {
       const response = await fetch("http://localhost:5000/api/materiales", {
@@ -110,6 +121,18 @@ const AgregarRegistroMaterial: React.FC = () => {
                   <option value="Libro">Libro</option>
                   <option value="Video">Video</option>
                 </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-bold">Tema</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={tema}
+                  onChange={(e) => setTema(e.target.value)}
+                  placeholder="Tema o nombre del archivo"
+                  required
+                />
               </div>
 
               <div className="mb-4">

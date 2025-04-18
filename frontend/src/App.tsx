@@ -12,7 +12,7 @@ import Register from './pages/RegistroU';
 import AyudaTutorias from './pages/AyudaTutorias';
 import AyudaAsesorias from './pages/AyudaAsesorias';
 import AgregarRegistroMaterial from './pages/AgregarRegistroMaterial';
-import EditarMaterial from './pages/EditarMaterial'
+import EditarMaterial from './components/tabs/EditarMaterial'
 import NotFound from './pages/NotFound';
 import './App.css';
 

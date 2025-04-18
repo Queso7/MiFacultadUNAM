@@ -77,6 +77,9 @@ const VerMateriales: React.FC = () => {
             <th>Área</th>
             <th>Materia</th>
             <th>Profesor</th>
+
+            <th>Tema</th>
+
             <th>Tipo</th>
             <th>Archivo</th>
             <th>Fecha</th>
@@ -86,12 +89,13 @@ const VerMateriales: React.FC = () => {
         <tbody>
           {materiales.map((material) => (
             <tr key={material.id}>
-              <td>{material.autor}</td>
-              <td>{material.area || '-'}</td>
-              <td>{material.materia || '-'}</td>
-              <td>{material.profesor || '-'}</td>
-              <td>{material.tipo || '-'}</td>
-              <td>
+            <td>{material.autor}</td>
+            <td>{material.area || '-'}</td>
+            <td>{material.materia || '-'}</td>
+            <td>{material.profesor || '-'}</td>
+            <td>{material.tema || '-'}</td>
+            <td>{material.tipo || '-'}</td>
+                  <td>
                 <a
                   href={`http://localhost:5000/uploads/${material.archivo}`}
                   target="_blank"
