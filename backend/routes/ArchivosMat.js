@@ -115,15 +115,15 @@ router.get('/', authenticateToken, async (req, res) => {
 // ✅ DELETE para eliminar un archivo
 router.delete('/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
-  const usuario = req.user.email;
+  const autor = req.user.email.substring(0, 9); // Ajuste aquí
 
   try {
     const material = await db.get("SELECT * FROM Materiales WHERE id = ?", [id]);
-    if (!material || material.autor !== usuario) {
+
+    if (!material || material.autor !== autor) {
       return res.status(403).json({ message: "No autorizado para eliminar este archivo" });
     }
 
-    // Opcional: eliminar el archivo del sistema si existe
     if (material.archivo && fs.existsSync(`./uploads/${material.archivo}`)) {
       fs.unlinkSync(`./uploads/${material.archivo}`);
     }
@@ -135,6 +135,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error al eliminar archivo" });
   }
 });
+
 
 // ✅ Obtener un archivo por id
 router.get('/:id', authenticateToken, async (req, res) => {

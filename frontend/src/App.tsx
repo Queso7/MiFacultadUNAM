@@ -16,6 +16,8 @@ import EditarMaterial from './components/tabs/EditarMaterial'
 import NotFound from './pages/NotFound';
 import './App.css';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 const App: React.FC = () => {
   return (
     

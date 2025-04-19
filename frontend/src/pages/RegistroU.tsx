@@ -1,61 +1,80 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 
-// Estilos con styled-components
-const RegistroContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
-`;
-
-const RegistroForm = styled.form`
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
-  text-align: center;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 15px;
-`;
-
-const Label = styled.label`
-  display: block;
-  text-align: left;
-  color: #555;
-  font-weight: bold;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #45a049;
-  }
-`;
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    backgroundColor: "#f7fafc",
+  },
+  form: {
+    maxWidth: "400px",
+    width: "100%",
+    padding: "2rem",
+    borderRadius: "8px",
+    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#ffffff",
+    boxSizing: "border-box",
+    textAlign: "center",
+  },
+  title: {
+    color: "#2d3748",
+    fontSize: "1.5rem",
+    fontWeight: 600,
+    marginBottom: "1.5rem",
+  },
+  group: {
+    marginBottom: "1.25rem",
+    textAlign: "left",
+  },
+  label: {
+    display: "block",
+    color: "#4a5568",
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    marginBottom: "0.5rem",
+  },
+  input: {
+    width: "100%",
+    padding: "0.75rem",
+    border: "1px solid #e2e8f0",
+    borderRadius: "6px",
+    fontSize: "1rem",
+    color: "#1a202c",
+    transition: "border-color 0.2s",
+  },
+  button: {
+    width: "100%",
+    padding: "0.75rem",
+    backgroundColor: "#4299e1",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "1rem",
+    fontWeight: 500,
+    cursor: "pointer",
+    marginTop: "1rem",
+    transition: "background-color 0.2s",
+  },
+  buttonHover: {
+    backgroundColor: "#3182ce",
+  },
+  loginLink: {
+    display: "block",
+    textAlign: "center",
+    marginTop: "1.5rem",
+    color: "#718096",
+    fontSize: "0.875rem",
+  },
+  loginAnchor: {
+    color: "#4299e1",
+    textDecoration: "none",
+    fontWeight: 500,
+  },
+};
 
 const RegistroU = () => {
   const [form, setFormData] = useState({
@@ -64,6 +83,7 @@ const RegistroU = () => {
     password: "",
   });
 
+  const [hover, setHover] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -75,12 +95,11 @@ const RegistroU = () => {
       return;
     }
 
-    const usernameFromEmail = form.email.split('@')[0].slice(0, 9);
+    const usernameFromEmail = form.email.split("@")[0].slice(0, 9);
 
-    // Creamos una nueva variable para enviar al backend con el username
     const formToSend = {
       ...form,
-      username: usernameFromEmail
+      username: usernameFromEmail,
     };
 
     try {
@@ -98,41 +117,67 @@ const RegistroU = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
   };
 
   return (
-    <RegistroContainer>
-      <RegistroForm onSubmit={handleSubmit}>
-        <h2>Registro de Usuario</h2>
-        <FormGroup>
-          <Label htmlFor="email">Correo Electrónico:</Label>
-          <Input
+    <div style={styles.container}>
+      <form style={styles.form} onSubmit={handleSubmit}>
+        <h2 style={styles.title}>Registro de Usuario</h2>
+
+        <div style={styles.group}>
+          <label style={styles.label} htmlFor="email">
+            Correo Electrónico:
+          </label>
+          <input
             type="email"
             id="email"
             name="email"
             value={form.email}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="password">Contraseña:</Label>
-          <Input
+        </div>
+
+        <div style={styles.group}>
+          <label style={styles.label} htmlFor="password">
+            Contraseña:
+          </label>
+          <input
             type="password"
             id="password"
             name="password"
             value={form.password}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <SubmitButton type="submit">Registrar</SubmitButton>
-      </RegistroForm>
-    </RegistroContainer>
+        </div>
+
+        <button
+          type="submit"
+          style={{
+            ...styles.button,
+            ...(hover ? styles.buttonHover : {}),
+          }}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          Registrar
+        </button>
+
+        <div style={styles.loginLink}>
+          ¿Ya tienes cuenta?{" "}
+          <a href="/login" style={styles.loginAnchor}>
+            Inicia sesión
+          </a>
+        </div>
+      </form>
+    </div>
   );
 };
 

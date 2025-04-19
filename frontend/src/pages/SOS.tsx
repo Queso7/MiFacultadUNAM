@@ -1,8 +1,29 @@
 import React, { useState } from 'react';
 import { Col, Container, Row, Image } from 'react-bootstrap';
+import jsPDF from 'jspdf';
 
 const SOS: React.FC = () => {
   const [emergencyType, setEmergencyType] = useState<string>('');
+  const [formData, setFormData] = useState<any>(null);
+
+  const handleGeneratePDF = (data: any) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Comprobante de Solicitud de Ayuda", 20, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Número de Cuenta: ${data.numeroCuenta}`, 20, 40);
+    doc.text(`Ubicación: ${data.ubicacion}`, 20, 50);
+    doc.text(`Teléfono: ${data.telefono}`, 20, 60);
+    doc.text(`Razón: ${data.emergencia}`, 20, 70);
+    doc.text(`Fecha: ${new Date().toLocaleString()}`, 20, 80);
+
+    doc.text("Firma y/o Sello de la autoridad correspondiente:", 20, 100);
+    doc.line(20, 105, 190, 105); // Línea para firma/sello
+
+    doc.save("Comprobante_Solicitud_Ayuda.pdf");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,14 +38,14 @@ const SOS: React.FC = () => {
     try {
       const response = await fetch("http://localhost:5000/api/sos", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
       const result = await response.json();
       alert(result.message);
+      setFormData(data);
+      handleGeneratePDF(data); // PDF se genera tras guardar
     } catch (error) {
       alert("Error al enviar la solicitud");
       console.error(error);
@@ -33,119 +54,61 @@ const SOS: React.FC = () => {
 
   return (
     <main className="sos-page">
-      <h2 className='text-center my-4'>SOS - Emergencias</h2>
-
+      <h2 className="text-center my-4">SOS - Emergencias</h2>
       <Container fluid>
         <Row className="align-items-center">
           <Col xs={12} md={8}>
-            <div className='shadow-sm' style={{ borderRadius: 5 }}>
-              <form onSubmit={handleSubmit} className="emergency-form shadow-lg p-4 rounded-4 border">
-                <div className="NUM mx-3">
-                  <label htmlFor="NC" className="form-label">Número de Cuenta</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="NC"
-                    placeholder="Número de cuenta"
-                    required
-                  />
-                </div>
-
-                <div className="Ubic mx-3">
-                  <label htmlFor="Ubi" className="form-label">Ubicación</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="Ubi"
-                    placeholder="¿Dónde necesita la ayuda?"
-                    required
-                  />
-                </div>
-
-                <div className="Telefono mx-3">
-                  <label htmlFor="Telefono" className="form-label">Teléfono</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="Telefono"
-                    placeholder="Tu número de contacto"
-                    required
-                  />
-                </div>
-
-                <div className="Razon mx-3">
-                  <label className="form-label">Razón</label>
-                  <select
-                    value={emergencyType}
-                    onChange={(e) => setEmergencyType(e.target.value)}
-                    className="form-control"
-                    required
-                  >
-                    <option value="">Selecciona el tipo de emergencia</option>
-                    <option value="salud">Salud</option>
-                    <option value="seguridad">Seguridad</option>
-                    <option value="acoso">Acoso</option>
-                  </select>
-                </div>
-                <div className="button" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
-                  <button type="submit" className="btn btn-danger w-100 py-3 fw-bold fs-5 d-flex align-items-center justify-content-center">Pedir Ayuda</button>
-                </div>
-              </form>
-            </div>
+            <form onSubmit={handleSubmit} className="shadow-lg p-4 rounded-4 border">
+              <div className="mx-3">
+                <label htmlFor="NC" className="form-label">Número de Cuenta</label>
+                <input type="text" className="form-control" id="NC" required />
+              </div>
+              <div className="mx-3">
+                <label htmlFor="Ubi" className="form-label">Ubicación</label>
+                <input type="text" className="form-control" id="Ubi" required />
+              </div>
+              <div className="mx-3">
+                <label htmlFor="Telefono" className="form-label">Teléfono</label>
+                <input type="text" className="form-control" id="Telefono" required />
+              </div>
+              <div className="mx-3">
+                <label className="form-label">Razón</label>
+                <select value={emergencyType} onChange={(e) => setEmergencyType(e.target.value)} className="form-control" required>
+                  <option value="">Selecciona el tipo de emergencia</option>
+                  <option value="salud">Salud</option>
+                  <option value="seguridad">Seguridad</option>
+                  <option value="acoso">Acoso</option>
+                </select>
+              </div>
+              <div className="mt-4 d-flex justify-content-center">
+                <button type="submit" className="btn btn-danger w-100 py-3 fw-bold fs-5">
+                  Pedir Ayuda
+                </button>
+              </div>
+            </form>
           </Col>
           <Col xs={12} md={4} className="my-5 d-flex justify-content-center">
-            <div style={{ maxWidth: '300px', width: '100%' }}>
-              <Image
-                roundedCircle
-                fluid
-                src='https://go.dev/doc/gopher/fifteen.gif'
-                className="img-fluid shadow-lg"
-                style={{ width: '100%', height: 'auto' }}
-                alt="Imagen de emergencia"
-              />
-            </div>
+            <Image
+              roundedCircle
+              fluid
+              src="https://go.dev/doc/gopher/fifteen.gif"
+              alt="Imagen de emergencia"
+              className="shadow-lg"
+              style={{ maxWidth: '300px' }}
+            />
           </Col>
         </Row>
-        <div className='my-5 p-4 rounded-4 border border-danger border-3 bg-danger bg-opacity-10 d-flex align-items-center justify-content-center shadow-lg'>
-          <div className='text-center'>
-            <p className='m-0 fs-5 fw-bold text-danger d-flex align-items-center justify-content-center'>
-              <i className="bi bi-exclamation-octagon-fill me-3 fs-3"></i>
-              RECUERDA QUE CUALQUIER TIPO DE ABUSO SERÁ SANCIONADO SEGUN EL REGLAMENTO INSTITUCIONAL.
-            </p>
-            <div className='mt-3'>
-              <a
-                href='https://cinig.ib.unam.mx/ProtocoloAtencionCasosViolenciaDeGeneroUNAM.pdf'
-                className='btn btn-outline-danger fw-bold d-inline-flex align-items-center'
-                target='_blank'
-                rel='noopener noreferrer' >
-                <i className="bi bi-file-earmark-pdf-fill me-2"></i>
-                PROTOCOLO PARA LA ATENCIÓN DE CASOS DE VIOLENCIA DE GÉNERO EN LA UNAM
-              </a>
-            </div>
-            <div className='mt-3'>
-              <a
-                href='https://www.defensoria.unam.mx/web/documentos/protocolo-atencion-integral-de-violencia-por-razones-de-genero.pdf'
-                className='btn btn-outline-danger fw-bold d-inline-flex align-items-center'
-                target='_blank'
-                rel='noopener noreferrer' >
-                <i className="bi bi-file-earmark-pdf-fill me-2"></i>
-                PROTOCOLO PARA LA ATENCIÓN INTEGRAL DE CASOS DE VIOLENCIA POR RAZONES DE GÉNERO EN LA UNIVERSIDAD NACIONAL AUTÓNOMA DE MÉXICO
-              </a>
-            </div>
-            <div className='mt-3'>
-              <a
-                href='https://www.acatlan.unam.mx/CLSyP/Protocolos.html'
-                className='btn btn-outline-danger fw-bold d-inline-flex align-items-center'
-                target='_blank'
-                rel='noopener noreferrer' >
-                <i className="bi bi-file-earmark-pdf-fill me-2"></i>
-                PROTOCOLOS FES ACATLAN
-              </a>
-            </div>
+        {formData && (
+          <div className="my-5 p-4 rounded-4 border border-success shadow-lg">
+            <h3 className="text-center">Constancia de Solicitud de Ayuda</h3>
+            <p><strong>Número de Cuenta:</strong> {formData.numeroCuenta}</p>
+            <p><strong>Ubicación:</strong> {formData.ubicacion}</p>
+            <p><strong>Teléfono:</strong> {formData.telefono}</p>
+            <p><strong>Razón:</strong> {formData.emergencia}</p>
+            <p><strong>Fecha:</strong> {new Date().toLocaleString()}</p>
           </div>
-        </div>
+        )}
       </Container>
-
     </main>
   );
 };

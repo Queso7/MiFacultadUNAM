@@ -50,17 +50,20 @@ const TabUsuario: React.FC = () => {
 
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`http://localhost:5000/api/materiales/${id}`, {
+      const response = await axios.delete(`http://localhost:5000/api/materiales/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      // Verificar la respuesta del backend
+      console.log(response.data);  // Agregar este log para ver el mensaje del servidor
       setMateriales(prev => prev.filter(m => m.id !== id));
     } catch (err) {
       alert('No se pudo eliminar el archivo');
-      console.error(err);
+      console.error('Error al eliminar el archivo:', err);
     }
-  };
+};
+
 
   if (error) {
     return <p className="text-danger">{error}</p>;
