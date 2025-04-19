@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/useauth';
 import { Link } from 'react-router-dom';
 
+
+let debounceTimeout: NodeJS.Timeout;
+
 interface Material {
   id: number;
   autor: string;
@@ -19,57 +22,77 @@ const VerMateriales: React.FC = () => {
   const [materiales, setMateriales] = useState<Material[]>([]);
   const [error, setError] = useState<string | null>(null);
   const user = useAuth();
+  
+  const[globalFiltrer,setGlobalFiltrer]=useState('')
+  console.log(globalFiltrer);
 
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const fetchMateriales = async () => {
-      try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://localhost:5000/api/materiales', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setMateriales(response.data);
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          console.error('Error al obtener materiales:', err.response?.data || err.message);
-        } else {
-          console.error('Error desconocido:', err);
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      const fetchMateriales = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          const token = localStorage.getItem('authToken');
+          const response = await axios.get('http://localhost:5000/api/materiales', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: globalFiltrer ? { q: globalFiltrer } : {}, // si hay filtro, lo manda; si no, trae todos
+          });
+          if (response.data.length === 0 && globalFiltrer !== '') {
+            setMateriales([]); // Si no se encuentran resultados, se limpian los materiales
+          } else {
+            setMateriales(response.data);
+          }
+        } catch (err) {
+          if (axios.isAxiosError(err)) {
+            console.error('Error al obtener materiales:', err.response?.data || err.message);
+          } else {
+            console.error('Error desconocido:', err);
+          }
+          setError('No se pudieron cargar los materiales.');
+          setMateriales([]);
+        } finally {
+          setLoading(false);
         }
-        setError('No se pudieron cargar los materiales.');
-      }
-    };
+      };
 
-    fetchMateriales();
-  }, []);
+      fetchMateriales();
+    }, 2000);
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de borrar este archivo?')) return;
+    return () => clearTimeout(debounceTimeout);
+  }, [globalFiltrer]);
 
-    try {
-      const token = localStorage.getItem('authToken');
-      await axios.delete(`http://localhost:5000/api/materiales/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setMateriales(prev => prev.filter(m => m.id !== id));
-    } catch (err) {
-      alert('No se pudo eliminar el archivo');
-      console.error(err);
-    }
+
+
+  const handleResetFilter = () => {
+    setGlobalFiltrer(''); // Restablecer filtro
   };
 
+  if (loading) {
+    return <p className="text-center">Cargando materiales...</p>;
+  }
   if (error) {
     return <p className="text-danger">{error}</p>;
   }
 
-  if (!materiales.length) {
-    return <p className="text-center">Cargando materiales...</p>;
-  }
-
   return (
+
+    
+
+
     <div className="table-responsive">
+
+    <div className= 'my-2 text-right'>
+      <input
+      type="text"
+      onChange={e=>setGlobalFiltrer(e.target.value)}
+      className='text-gray-600 border border-gray-300 rounded outline-indigo-700'
+      placeholder= 'buscar...'/>
+     </div>
+
       <table className="table table-bordered table-striped">
         <thead className="thead-dark">
           <tr>

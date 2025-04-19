@@ -84,20 +84,34 @@ router.post('/', authenticateToken, upload.single('archivo'), async (req, res) =
 
 // ✅ GET para obtener todos los archivos (o solo los del usuario)
 router.get('/', authenticateToken, async (req, res) => {
-  const { misArchivos } = req.query;
+  const { misArchivos,q } = req.query;
 
   try {
     let materiales;
     if (misArchivos === 'true') {
       const username = req.user.email.split('@')[0];
-    
+       
       materiales = await db.all(`
         SELECT m.id, u.username AS Usuario, u.email, m.area, m.materia, m.profesor, m.tipo, m.archivo, m.fecha, m.autor, m.tema
         FROM Materiales m
         LEFT JOIN users u ON m.autor = u.username
         WHERE m.autor = ?
       `, [username]);
-    } else {
+    } else if (q){
+      const filtro = `%${q.toLowerCase()}%`;
+      materiales = await db.all(`
+        SELECT m.*, u.email
+        FROM Materiales m
+        JOIN users u ON m.autor = u.username
+        WHERE
+          LOWER(m.area) LIKE ? OR
+          LOWER(m.materia) LIKE ? OR
+          LOWER(m.profesor) LIKE ? OR
+          LOWER(m.tipo) LIKE ? OR
+          LOWER(m.tema) LIKE ? OR
+          LOWER(m.autor) LIKE ?
+      `, [filtro, filtro, filtro, filtro, filtro, filtro]);
+    }else {
       materiales = await db.all(`
         SELECT m.*, u.email
         FROM Materiales m
