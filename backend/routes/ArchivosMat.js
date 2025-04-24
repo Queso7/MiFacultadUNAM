@@ -82,49 +82,79 @@ router.post('/', authenticateToken, upload.single('archivo'), async (req, res) =
   }
 });
 
-// ✅ GET para obtener todos los archivos (o solo los del usuario)
 router.get('/', authenticateToken, async (req, res) => {
-  const { misArchivos,q } = req.query;
-
   try {
-    let materiales;
+    const { area, materia, profesor, pagina = 1, porPagina = 15, misArchivos, q } = req.query;
+    const limit = parseInt(porPagina);
+    const offset = (parseInt(pagina) - 1) * limit;
+
+    const condiciones = [];
+    const valores = [];
+
     if (misArchivos === 'true') {
       const username = req.user.email.split('@')[0];
-       
-      materiales = await db.all(`
-        SELECT m.id, u.username AS Usuario, u.email, m.area, m.materia, m.profesor, m.tipo, m.archivo, m.fecha, m.autor, m.tema
-        FROM Materiales m
-        LEFT JOIN users u ON m.autor = u.username
-        WHERE m.autor = ?
-      `, [username]);
-    } else if (q){
-      const filtro = `%${q.toLowerCase()}%`;
-      materiales = await db.all(`
-        SELECT m.*, u.email
-        FROM Materiales m
-        JOIN users u ON m.autor = u.username
-        WHERE
-          LOWER(m.area) LIKE ? OR
-          LOWER(m.materia) LIKE ? OR
-          LOWER(m.profesor) LIKE ? OR
-          LOWER(m.tipo) LIKE ? OR
-          LOWER(m.tema) LIKE ? OR
-          LOWER(m.autor) LIKE ?
-      `, [filtro, filtro, filtro, filtro, filtro, filtro]);
-    }else {
-      materiales = await db.all(`
-        SELECT m.*, u.email
-        FROM Materiales m
-        JOIN users u ON m.autor = u.username
-      `);
+      condiciones.push("m.autor = ?");
+      valores.push(username);
     }
 
-    res.json(materiales);
+    if (area) {
+      condiciones.push("LOWER(m.area) = ?");
+      valores.push(area.toLowerCase());
+    }
+
+    if (materia) {
+      condiciones.push("LOWER(m.materia) LIKE ?");
+      valores.push(`%${materia.toLowerCase()}%`);
+    }
+
+    if (profesor) {
+      condiciones.push("LOWER(m.profesor) LIKE ?");
+      valores.push(`%${profesor.toLowerCase()}%`);
+    }
+
+    if (q) {
+      const likeQ = `%${q.toLowerCase()}%`;
+      condiciones.push(`
+        (
+          LOWER(m.materia) LIKE ? OR
+          LOWER(m.profesor) LIKE ? OR
+          LOWER(m.area) LIKE ?
+        )
+      `);
+      valores.push(likeQ, likeQ, likeQ);
+    }
+
+    const whereClause = condiciones.length > 0 ? `WHERE ${condiciones.join(' AND ')}` : '';
+
+    const query = `
+      SELECT m.*, u.email
+      FROM Materiales m
+      JOIN users u ON m.autor = u.username
+      ${whereClause}
+      ORDER BY m.area ASC, m.materia ASC
+      LIMIT ? OFFSET ?
+    `;
+
+    const materiales = await db.all(query, [...valores, limit, offset]);
+
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM Materiales m
+      JOIN users u ON m.autor = u.username
+      ${whereClause}
+    `;
+    const { total } = await db.get(countQuery, valores);
+
+    res.json({ materiales, total });
   } catch (error) {
-    console.error('Error al obtener archivos:', error);
+    console.error('Error al obtener materiales:', error);
     res.status(500).json({ message: "Error al obtener archivos" });
   }
 });
+
+
+
+
 
 // ✅ DELETE para eliminar un archivo
 router.delete('/:id', authenticateToken, async (req, res) => {

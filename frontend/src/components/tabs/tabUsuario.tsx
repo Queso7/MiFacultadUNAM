@@ -31,7 +31,8 @@ const TabUsuario: React.FC = () => {
           },
         });
         console.log('Materiales recibidos:', response.data);
-        setMateriales(response.data);
+        setMateriales(response.data.materiales); // <--- aquí
+
       } catch (err) {
         if (axios.isAxiosError(err)) {
           console.error('Error al obtener materiales:', err.response?.data || err.message);

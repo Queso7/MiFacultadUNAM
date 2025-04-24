@@ -1,10 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useauth';
 import { Link } from 'react-router-dom';
-
-
-let debounceTimeout: NodeJS.Timeout;
 
 interface Material {
   id: number;
@@ -16,141 +14,142 @@ interface Material {
   profesor?: string;
   tipo?: string;
   fecha?: string;
+  tema?: string;
 }
 
 const VerMateriales: React.FC = () => {
   const [materiales, setMateriales] = useState<Material[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const user = useAuth();
-  
-  const[globalFiltrer,setGlobalFiltrer]=useState('')
-  console.log(globalFiltrer);
-
+  const [area, setArea] = useState('');
+  const [materia, setMateria] = useState('');
+  const [profesor, setProfesor] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      const fetchMateriales = async () => {
-        try {
-          setLoading(true);
-          setError(null);
-          const token = localStorage.getItem('authToken');
-          const response = await axios.get('http://localhost:5000/api/materiales', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            params: globalFiltrer ? { q: globalFiltrer } : {}, // si hay filtro, lo manda; si no, trae todos
-          });
-          if (response.data.length === 0 && globalFiltrer !== '') {
-            setMateriales([]); // Si no se encuentran resultados, se limpian los materiales
-          } else {
-            setMateriales(response.data);
-          }
-        } catch (err) {
-          if (axios.isAxiosError(err)) {
-            console.error('Error al obtener materiales:', err.response?.data || err.message);
-          } else {
-            console.error('Error desconocido:', err);
-          }
-          setError('No se pudieron cargar los materiales.');
-          setMateriales([]);
-        } finally {
-          setLoading(false);
-        }
-      };
+  const user = useAuth();
 
-      fetchMateriales();
-    }, 2000);
+  const porPagina = 15;
 
-    return () => clearTimeout(debounceTimeout);
-  }, [globalFiltrer]);
+  const fetchMateriales = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get('http://localhost:5000/api/materiales', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          area: area || undefined,
+          materia: materia || undefined,
+          profesor: profesor || undefined,
+          pagina,
+          porPagina,
+        },
+      });
 
-
-
-  const handleResetFilter = () => {
-    setGlobalFiltrer(''); // Restablecer filtro
+      setMateriales(response.data.materiales);
+      setTotalPaginas(Math.ceil(response.data.total / porPagina));
+    } catch (error) {
+      console.error('Error al obtener materiales:', error);
+      setMateriales([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) {
-    return <p className="text-center">Cargando materiales...</p>;
-  }
-  if (error) {
-    return <p className="text-danger">{error}</p>;
-  }
+  useEffect(() => {
+    fetchMateriales();
+  }, [pagina]);
+
+  const handleBuscar = () => {
+    setPagina(1); // Reiniciar a la primera página al buscar
+    fetchMateriales();
+  };
+
+  const handleReset = () => {
+    setArea('');
+    setMateria('');
+    setProfesor('');
+    setPagina(1);
+    fetchMateriales();
+  };
 
   return (
+    <div className="container">
+      <div className="my-3">
+        <select value={area} onChange={e => setArea(e.target.value)} className="form-select mb-2">
+          <option value="">Todas las áreas</option>
+          <option value="Matematicas">Matematicas</option>
+          <option value="Ingenieria">Ingenieria</option>
+          <option value="Ciencias Computacionales">Ciencias Computacionales</option>
+          <option value="Ciencias Sociales">Ciencias Sociales</option>
+          <option value="Humanidades">Humanidades</option>
+        </select>
+        <input
+          type="text"
+          className="form-control mb-2"
+          placeholder="Buscar por materia"
+          value={materia}
+          onChange={e => setMateria(e.target.value)}
+        />
+        <input
+          type="text"
+          className="form-control mb-2"
+          placeholder="Buscar por profesor"
+          value={profesor}
+          onChange={e => setProfesor(e.target.value)}
+        />
+        <div className="d-flex gap-2">
+          <button onClick={handleBuscar} className="btn btn-primary">Buscar</button>
+          <button onClick={handleReset} className="btn btn-secondary">Reiniciar</button>
+        </div>
+      </div>
 
-    
-
-
-    <div className="table-responsive">
-
-    <div className= 'my-2 text-right'>
-      <input
-      type="text"
-      onChange={e=>setGlobalFiltrer(e.target.value)}
-      className='text-gray-600 border border-gray-300 rounded outline-indigo-700'
-      placeholder= 'buscar...'/>
-     </div>
-
-      <table className="table table-bordered table-striped">
-        <thead className="thead-dark">
-          <tr>
-            <th>Autor</th>
-            <th>Área</th>
-            <th>Materia</th>
-            <th>Profesor</th>
-
-            <th>Tema</th>
-
-            <th>Tipo</th>
-            <th>Archivo</th>
-            <th>Fecha</th>
-           
-          </tr>
-        </thead>
-        <tbody>
-          {materiales.map((material) => (
-            <tr key={material.id}>
-            <td>{material.autor}</td>
-            <td>{material.area || '-'}</td>
-            <td>{material.materia || '-'}</td>
-            <td>{material.profesor || '-'}</td>
-            <td>{material.tema || '-'}</td>
-            <td>{material.tipo || '-'}</td>
+      {loading ? (
+        <p>Cargando materiales...</p>
+      ) : (
+        <>
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th>Autor</th>
+                <th>Área</th>
+                <th>Materia</th>
+                <th>Profesor</th>
+                <th>Tema</th>
+                <th>Tipo</th>
+                <th>Archivo</th>
+                <th>Fecha</th>
+             
+              </tr>
+            </thead>
+            <tbody>
+              {materiales.map(m => (
+                <tr key={m.id}>
+                  <td>{m.autor}</td>
+                  <td>{m.area || '-'}</td>
+                  <td>{m.materia || '-'}</td>
+                  <td>{m.profesor || '-'}</td>
+                  <td>{m.tema || '-'}</td>
+                  <td>{m.tipo || '-'}</td>
+                  <td><a href={`http://localhost:5000/uploads/${m.archivo}`} target="_blank">Ver archivo</a></td>
+                  <td>{m.fecha ? new Date(m.fecha).toLocaleDateString() : '-'}</td>
                   <td>
-                <a
-                  href={`http://localhost:5000/uploads/${material.archivo}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ver archivo
-                </a>
-              </td>
-              <td>{material.fecha ? new Date(material.fecha).toLocaleDateString() : '-'}</td>
-              <td>
-              {user.getUser() && user.getUser()?.email === material.autor && (
-
-                  <>
-                    <Link
-                      to={`/ayuda/material/editar/${material.id}`}
-                      className="btn btn-warning btn-sm me-2"
-                    >
-                      Modificar
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(material.id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Borrar
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    {user.getUser()?.email === m.autor && (
+                      <>
+                        <Link to={`/ayuda/material/editar/${m.id}`} className="btn btn-warning btn-sm">Modificar</Link>
+                        <button className="btn btn-danger btn-sm ms-1">Borrar</button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="d-flex justify-content-between">
+            <button disabled={pagina === 1} onClick={() => setPagina(p => p - 1)} className="btn btn-outline-primary">←</button>
+            <span>Página {pagina} de {totalPaginas}</span>
+            <button disabled={pagina === totalPaginas} onClick={() => setPagina(p => p + 1)} className="btn btn-outline-primary">→</button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
