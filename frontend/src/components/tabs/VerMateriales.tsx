@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useauth';
@@ -117,7 +116,6 @@ const VerMateriales: React.FC = () => {
                 <th>Tipo</th>
                 <th>Archivo</th>
                 <th>Fecha</th>
-             
               </tr>
             </thead>
             <tbody>
@@ -129,7 +127,11 @@ const VerMateriales: React.FC = () => {
                   <td>{m.profesor || '-'}</td>
                   <td>{m.tema || '-'}</td>
                   <td>{m.tipo || '-'}</td>
-                  <td><a href={`http://localhost:5000/uploads/${m.archivo}`} target="_blank">Ver archivo</a></td>
+                  <td>
+                    <a href={`http://localhost:5000/uploads/${m.archivo}`} target="_blank" rel="noreferrer">
+                      Ver archivo
+                    </a>
+                  </td>
                   <td>{m.fecha ? new Date(m.fecha).toLocaleDateString() : '-'}</td>
                   <td>
                     {user.getUser()?.email === m.autor && (
@@ -143,10 +145,32 @@ const VerMateriales: React.FC = () => {
               ))}
             </tbody>
           </table>
-          <div className="d-flex justify-content-between">
-            <button disabled={pagina === 1} onClick={() => setPagina(p => p - 1)} className="btn btn-outline-primary">←</button>
-            <span>Página {pagina} de {totalPaginas}</span>
-            <button disabled={pagina === totalPaginas} onClick={() => setPagina(p => p + 1)} className="btn btn-outline-primary">→</button>
+
+          {/* Nueva paginación con botones por página */}
+          <div className="d-flex flex-wrap gap-2 justify-content-center mt-3">
+            <button
+              disabled={pagina === 1}
+              onClick={() => setPagina(p => p - 1)}
+              className="btn btn-outline-primary"
+            >
+              ←
+            </button>
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(num => (
+              <button
+                key={num}
+                onClick={() => setPagina(num)}
+                className={`btn ${num === pagina ? 'btn-primary' : 'btn-outline-secondary'}`}
+              >
+                {num}
+              </button>
+            ))}
+            <button
+              disabled={pagina === totalPaginas}
+              onClick={() => setPagina(p => p + 1)}
+              className="btn btn-outline-primary"
+            >
+              →
+            </button>
           </div>
         </>
       )}
